@@ -1,105 +1,49 @@
 # S2SModTemplate
 
-Minimal C# template for building a Slay the Spire 2 mod with Harmony.
+A C# template for building a [Slay the Spire 2](https://store.steampowered.com/app/2868840/Slay_the_Spire_2/) mod with [Harmony](https://github.com/pardeike/Harmony).
 
-This template is intentionally small. It gives you:
-
-- a `net9.0` mod project
-- a `[ModInitializer]` bootstrap entrypoint
-- Harmony setup
-- a simple file and console logger
-- a place to add patch classes
-- a `mod_manifest.json` copied to the build output
-
-`S2SModTemplate` is a placeholder source name used by the template engine. When you create a project with `dotnet new sts2mod -n MyMod`, the generated solution, project, namespaces, manifest name, logger file name, and Harmony ID are renamed to `MyMod`.
+When you run `dotnet new sts2mod -n MyMod`, the template engine rewrites `S2SModTemplate` (project, assembly, manifest filename) and the placeholder tokens (`MOD_NAMESPACE`, `MOD_HARMONY_ID`, `MOD_DISPLAY_NAME`, `MOD_AUTHOR`, `MOD_DESCRIPTION`, `MOD_VERSION`) using the parameters you pass.
 
 ## Requirements
 
 - .NET 9 SDK
 - Slay the Spire 2 installed through Steam
-- the game files present in Steam's default `steamapps/common` location for your OS, or equivalent paths that match the project file logic
 
-The project references game-managed DLLs directly from the Steam install:
+The csproj references the game's managed DLLs directly from the default Steam location:
 
-- Windows: `Steam/steamapps/common/Slay the Spire 2/data_sts2_windows_x86_64`
+- Windows: `Steam\steamapps\common\Slay the Spire 2\data_sts2_windows_x86_64`
 - Linux: `~/.local/share/Steam/steamapps/common/Slay the Spire 2/data_sts2_linuxbsd_x86_64`
-- macOS: `~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/Resources/...`
+- macOS: `~/Library/Application Support/Steam/steamapps/common/Slay the Spire 2/SlayTheSpire2.app/Contents/Resources/data_sts2_macos_{arm64,x86_64}`
 
-If your Steam library is somewhere else, adjust `SteamCommonDir` in `S2SModTemplate/S2SModTemplate.csproj` or the renamed project file produced by the template.
+If your Steam library is elsewhere, override `SteamCommonDir` in the generated `.csproj`.
 
 ## Project Layout
 
-- `S2SModTemplate.slnx`: solution entrypoint
-- `S2SModTemplate/S2SModTemplate.csproj`: target framework, Steam path resolution, DLL references, manifest copy
-- `S2SModTemplate/Bootstrap/ModEntry.cs`: mod bootstrap and Harmony initialization
-- `S2SModTemplate/Diagnostics/TemplateLog.cs`: best-effort logger writing to console and `<ModName>.log`
-- `S2SModTemplate/Patching/ExamplePatches.cs`: placeholder for your Harmony patches
-- `S2SModTemplate/mod_manifest.json`: mod metadata copied to output
+| File / Folder                  | Purpose                                                                 |
+|--------------------------------|-------------------------------------------------------------------------|
+| `S2SModTemplate.csproj`        | Target framework, Steam path resolution, DLL references, manifest copy  |
+| `S2SModTemplate.json`          | Mod manifest (schema, name, author, description, version)              |
+| `Bootstrap/ModEntry.cs`        | `[ModInitializer]` entry point — runs `Harmony.PatchAll`               |
+| `Patching/ExamplePatches.cs`   | Empty stub showing the expected `[HarmonyPatch]` shape                 |
+| `install_skills.sh`            | One-shot bootstrap for the optional ILSpy reference skill              |
 
-## First Steps
-
-1. Review `mod_manifest.json` and fill in any metadata you do not want to supply through template parameters.
-2. Build the solution once to verify the Steam path resolution on your machine.
-3. Add Harmony patches under `S2SModTemplate/Patching/`.
+`ModEntry.Initialize` also preloads `libgcc_s` / `libunwind` with `RTLD_GLOBAL` on Linux. Without that, Harmony's transpiler path can fail to resolve those libraries inside the Godot host.
 
 ## Build
 
 ```bash
-dotnet build S2SModTemplate.slnx
+dotnet build
 ```
 
-On a successful build, the output directory will contain:
+`sts2.dll` and `0Harmony.dll` are reference-only (`<Private>false</Private>`) and are not copied into your output. The manifest (`<name>.json`) is copied next to the assembly.
 
-- your compiled assembly
-- `mod_manifest.json`
+## Optional: Codex / Claude ILSpy Skill
 
-The project keeps both `sts2.dll` and `0Harmony.dll` as reference-only dependencies and does not copy them into your output.
+`install_skills.sh` writes a self-contained `sts2-ilspy-reference` skill into the project's local `.codex/skills/` and `.claude/skills/`. The skill wraps `ilspycmd` to decompile `sts2.dll` into a searchable C# tree.
 
-## Bootstrap Behavior
-
-The template initializes from:
-
-- `[ModInitializer(nameof(Initialize))]` in `S2SModTemplate/Bootstrap/ModEntry.cs`
-
-At startup it:
-
-- logs bootstrap start/end
-- preloads Linux native dependencies used by Harmony
-- creates a Harmony instance with a template Harmony ID
-- applies all patches in the assembly
-
-Keep the Linux preload logic unless you have verified Harmony still initializes correctly without it.
-
-## Adding Patches
-
-Put new Harmony patch classes under `S2SModTemplate/Patching/`.
-
-Example skeleton:
-
-```csharp
-using HarmonyLib;
-
-namespace YourModNamespace.Patching;
-
-[HarmonyPatch(typeof(SomeType), nameof(SomeType.SomeMethod))]
-public static class SomeTypeSomeMethodPatch
-{
-    public static void Prefix()
-    {
-    }
-}
+```bash
+./install_skills.sh                # install both
+./install_skills.sh --only claude  # codex|claude|both
 ```
 
-Prefer one patch class per target or one small coherent behavior.
-
-## Logging
-
-Use `S2SModTemplate/Diagnostics/TemplateLog.cs` for simple diagnostics:
-
-```csharp
-TemplateLog.Info("Hello from the mod.");
-TemplateLog.Warn("Something looks off.");
-TemplateLog.Error("Bootstrap failed.", ex);
-```
-
-Logging is best-effort by design. If file writes fail, console logging still continues. The log file name follows the generated mod name, for example `MyMod.log`.
+The script embeds the skill payload inline — there is no `skills/` folder to manage. After it runs, the project owns its local skills; commit them and delete the script.

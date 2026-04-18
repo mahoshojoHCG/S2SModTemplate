@@ -7,7 +7,7 @@
     <LangVersion>latest</LangVersion>
     <NuGetAudit>false</NuGetAudit>
     <AssemblyName>S2SModTemplate</AssemblyName>
-    <RootNamespace>S2SModTemplate</RootNamespace>
+    <RootNamespace>MOD_NAMESPACE</RootNamespace>
     <IsWindows>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))</IsWindows>
     <IsMacOS>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))</IsMacOS>
     <IsLinux>$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))</IsLinux>
@@ -44,9 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="mod_manifest.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <None Include="S2SModTemplate.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

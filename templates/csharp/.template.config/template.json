@@ -1,14 +1,14 @@
 {
   "$schema": "http://json.schemastore.org/template",
-  "author": "Mahoshojo",
+  "author": "mahoshojohcg",
   "classifications": [
     "Games",
     "Modding",
     "Slay the Spire 2",
     "Harmony"
   ],
-  "identity": "Mahoshojo.S2SModTemplate.CSharp",
-  "groupIdentity": "Mahoshojo.S2SModTemplate",
+  "identity": "S2SModTemplate.Templates",
+  "groupIdentity": "S2SModTemplate.Templates",
   "name": "Slay the Spire 2 Mod",
   "shortName": "sts2mod",
   "defaultName": "MySts2Mod",
@@ -19,34 +19,89 @@
     "type": "project"
   },
   "symbols": {
-    "ModAuthor": {
+    "RootNamespace": {
       "type": "parameter",
-      "datatype": "text",
-      "defaultValue": "YourName",
-      "description": "Author written to mod_manifest.json.",
-      "replaces": "YourName"
+      "datatype": "string",
+      "description": "Root C# namespace for the mod. Defaults to the project name (-n).",
+      "defaultValue": "",
+      "replaces": "ROOT_NS_PLACEHOLDER_DO_NOT_USE"
     },
-    "ModDescription": {
+    "rootNamespaceResolved": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "RootNamespace",
+        "fallbackVariableName": "name"
+      },
+      "replaces": "MOD_NAMESPACE"
+    },
+    "HarmonyId": {
       "type": "parameter",
-      "datatype": "text",
-      "defaultValue": "Minimal Slay the Spire 2 mod template.",
-      "description": "Description written to mod_manifest.json.",
-      "replaces": "Minimal Slay the Spire 2 mod template extracted from BetterConnection."
+      "datatype": "string",
+      "description": "Harmony instance id. Defaults to sts2.<projectName>.",
+      "defaultValue": "",
+      "replaces": "HARMONY_ID_PLACEHOLDER_DO_NOT_USE"
+    },
+    "harmonyIdDefault": {
+      "type": "generated",
+      "generator": "join",
+      "parameters": {
+        "symbols": [
+          { "type": "const", "value": "sts2." },
+          { "type": "ref", "value": "name" }
+        ]
+      }
+    },
+    "harmonyIdResolved": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "HarmonyId",
+        "fallbackVariableName": "harmonyIdDefault"
+      },
+      "replaces": "MOD_HARMONY_ID"
+    },
+    "ModName": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Display name written into mod_manifest.json. Defaults to the project name.",
+      "defaultValue": "",
+      "replaces": "MOD_NAME_PLACEHOLDER_DO_NOT_USE"
+    },
+    "modNameResolved": {
+      "type": "generated",
+      "generator": "coalesce",
+      "parameters": {
+        "sourceVariableName": "ModName",
+        "fallbackVariableName": "name"
+      },
+      "replaces": "MOD_DISPLAY_NAME"
+    },
+    "Author": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Mod author written into mod_manifest.json.",
+      "defaultValue": "YourName",
+      "replaces": "MOD_AUTHOR"
+    },
+    "Description": {
+      "type": "parameter",
+      "datatype": "string",
+      "description": "Mod description written into mod_manifest.json.",
+      "defaultValue": "Slay the Spire 2 mod.",
+      "replaces": "MOD_DESCRIPTION"
     },
     "ModVersion": {
       "type": "parameter",
-      "datatype": "text",
+      "datatype": "string",
+      "description": "Mod version written into mod_manifest.json.",
       "defaultValue": "0.1.0",
-      "description": "Version written to mod_manifest.json.",
-      "replaces": "0.1.0"
+      "replaces": "MOD_VERSION"
     }
   },
   "primaryOutputs": [
     {
-      "path": "S2SModTemplate.slnx"
-    },
-    {
-      "path": "S2SModTemplate/S2SModTemplate.csproj"
+      "path": "S2SModTemplate.csproj"
     }
   ]
 }

@@ -1,16 +1,13 @@
 using HarmonyLib;
 using MegaCrit.Sts2.Core.Modding;
-using S2SModTemplate.Diagnostics;
 using System.Runtime.InteropServices;
 
-namespace S2SModTemplate.Bootstrap;
+namespace MOD_NAMESPACE.Bootstrap;
 
 [ModInitializer(nameof(Initialize))]
 public static class ModEntry
 {
-    private const string HarmonyId = "sts2.s2smodtemplate";
-    private const int RtldNow = 2;
-    private const int RtldGlobal = 0x100;
+    private const string HarmonyId = "MOD_HARMONY_ID";
     private static int _initialized;
 
     public static void Initialize()
@@ -22,20 +19,21 @@ public static class ModEntry
 
         try
         {
-            TemplateLog.Info("Bootstrap starting.");
             EnsureHarmonyNativeDependencies();
 
             var harmony = new Harmony(HarmonyId);
             harmony.PatchAll(typeof(ModEntry).Assembly);
 
-            TemplateLog.Info("Bootstrap completed.");
+            Console.WriteLine($"[{HarmonyId}] initialized");
         }
         catch (Exception ex)
         {
-            TemplateLog.Error("Bootstrap failed.", ex);
+            Console.WriteLine($"[{HarmonyId}] initialization failed: {ex}");
         }
     }
 
+    // Harmony's transpiler path on Linux can fail to resolve libgcc_s/libunwind
+    // unless they are loaded with RTLD_GLOBAL. This preloads them via dlopen.
     private static void EnsureHarmonyNativeDependencies()
     {
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -51,18 +49,17 @@ public static class ModEntry
     {
         foreach (var candidate in candidates)
         {
-            if (TryDlopenGlobal(candidate, out var handle, out var error))
+            if (TryDlopenGlobal(candidate, out _, out _))
             {
-                TemplateLog.Info($"Preloaded native dependency: {candidate}, handle=0x{handle.ToInt64():x}");
                 return;
             }
-
-            TemplateLog.Warn($"Failed to preload native dependency: {candidate} ({error})");
         }
     }
 
     private static bool TryDlopenGlobal(string libraryName, out IntPtr handle, out string? error)
     {
+        const int RtldNow = 2;
+        const int RtldGlobal = 0x100;
         const string libdl = "libdl.so.2";
 
         handle = IntPtr.Zero;

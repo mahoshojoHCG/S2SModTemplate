@@ -1,4 +1,0 @@
-interface:
-  display_name: "STS2 ILSpy Reference"
-  short_description: "Decompile sts2.dll for code reference."
-  default_prompt: "Use this skill to decompile sts2.dll with ilspycmd and inspect the resulting source as a reference for Slay the Spire 2 modding work."
