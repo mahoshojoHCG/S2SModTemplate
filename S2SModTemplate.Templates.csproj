@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <NoBuild>true</NoBuild>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NuGetAudit>false</NuGetAudit>
+
+    <PackageId>S2SModTemplate.Templates</PackageId>
+    <PackageVersion>0.1.0</PackageVersion>
+    <Title>Slay the Spire 2 Mod Templates</Title>
+    <Authors>Mahoshojo</Authors>
+    <Description>dotnet new template package for a minimal Slay the Spire 2 Harmony mod.</Description>
+    <PackageType>Template</PackageType>
+    <PackageTags>dotnet-new;template;slay-the-spire-2;mod;harmony</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="templates\**\*">
+      <Pack>true</Pack>
+      <PackagePath>content</PackagePath>
+    </Content>
+
+    <None Include="README.md">
+      <Pack>true</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

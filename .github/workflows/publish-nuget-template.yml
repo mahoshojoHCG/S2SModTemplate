@@ -1,0 +1,46 @@
+name: Publish NuGet Package (Template)
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+env:
+  DOTNET_VERSION: "9.0.x"
+  PROJECT_PATH: "S2SModTemplate.Templates.csproj"
+  CONFIGURATION: "Release"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore $PROJECT_PATH
+
+      - name: Pack
+        run: >
+          dotnet pack $PROJECT_PATH
+          --configuration $CONFIGURATION
+          --no-restore
+          -p:ContinuousIntegrationBuild=true
+          -p:PackageVersion=${GITHUB_REF_NAME#v}
+          --output ./artifacts
+
+      - name: Publish to NuGet
+        run: >
+          dotnet nuget push "./artifacts/*.nupkg"
+          --api-key "${{ secrets.NUGET_API_KEY }}"
+          --source "https://api.nuget.org/v3/index.json"
+          --skip-duplicate

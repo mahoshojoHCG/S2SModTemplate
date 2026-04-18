@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Mahoshojo",
+  "classifications": [
+    "Games",
+    "Modding",
+    "Slay the Spire 2",
+    "Harmony"
+  ],
+  "identity": "Mahoshojo.S2SModTemplate.CSharp",
+  "groupIdentity": "Mahoshojo.S2SModTemplate",
+  "name": "Slay the Spire 2 Mod",
+  "shortName": "sts2mod",
+  "defaultName": "MySts2Mod",
+  "sourceName": "S2SModTemplate",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "symbols": {
+    "ModAuthor": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "YourName",
+      "description": "Author written to mod_manifest.json.",
+      "replaces": "YourName"
+    },
+    "ModDescription": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "Minimal Slay the Spire 2 mod template.",
+      "description": "Description written to mod_manifest.json.",
+      "replaces": "Minimal Slay the Spire 2 mod template extracted from BetterConnection."
+    },
+    "ModVersion": {
+      "type": "parameter",
+      "datatype": "text",
+      "defaultValue": "0.1.0",
+      "description": "Version written to mod_manifest.json.",
+      "replaces": "0.1.0"
+    }
+  },
+  "primaryOutputs": [
+    {
+      "path": "S2SModTemplate.slnx"
+    },
+    {
+      "path": "S2SModTemplate/S2SModTemplate.csproj"
+    }
+  ]
+}
